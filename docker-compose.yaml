@@ -1,0 +1,51 @@
+services:
+  sysken-pay: # サービス名
+    container_name: sysken-pay
+    build: # ビルドに使うDockerファイルのパス
+      context: .
+      dockerfile: ./build/go/Dockerfile
+    volumes: # マウントディレクトリ
+      - ./src:/go/src/app
+    ports:
+      - '${PORT:-8080}:${PORT:-8080}' # 環境変数 PORT を使用し、デフォルトは 4000 に設定
+    environment:
+      - PORT=${PORT:-8080} # コンテナ内の環境変数として設定
+      - DATABASE_URL=${DATABASE_URL}
+    tty: true # コンテナの永続化
+    env_file: # .envファイル
+      - .env
+    networks:
+      - private-net
+    depends_on: #mysqlが立ち上がるまで待つ
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} #初期パスワード　管理者権限のやつ　バレたら死ぬ 開発環境はなんでもいいーわかりやすいやつで
+      TZ: Asia/Tokyo #日本時間に設定
+    ports:
+      - 53306:3306 #内部のポート　：　外部のポート
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql #ホスト上のファイルをDocker上に保存する
+    networks:
+      - private-net
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-uroot',
+          '-p${MYSQL_ROOT_PASSWORD}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s # MySQLが完全に起動するまで待つ時間
+
+networks:
+  private-net:
+    driver: bridge
