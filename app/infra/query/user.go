@@ -40,10 +40,11 @@ func (r *RegisterUserServiceImpl) InsertUser(
 	}
 
 	query := `
-    INSERT INTO ` + "`user`" + ` (name, created_at, deleted_at)
-    VALUES (?, ?, NULL)
+    INSERT INTO ` + "`user`" + ` (id, name, created_at, deleted_at)
+    VALUES (?, ?, ?, NULL)
 	`
 	_, err = r.db.ExecContext(ctx, query,
+		u.ID(),
 		u.UserName(),
 		u.CreatedAt(),
 	)

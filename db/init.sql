@@ -8,10 +8,9 @@ USE app;
 -- 1. user テーブル (ユーザー)
 -- ---------------------------------
 CREATE TABLE `user` (
-    id BINARY(16) NOT NULL DEFAULT (UUID_TO_BIN(UUID(), 1)),
+    id CHAR(36) NOT NULL ,
     name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     
     PRIMARY KEY (id)
@@ -37,7 +36,7 @@ CREATE TABLE item (
 -- ---------------------------------
 CREATE TABLE charge (
     id INT NOT NULL AUTO_INCREMENT,
-    user_id BINARY(16) NOT NULL,
+    user_id CHAR(36) NOT NULL,
     amount INT NOT NULL CHECK (amount > 0),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
@@ -51,7 +50,7 @@ CREATE TABLE charge (
 -- ---------------------------------
 CREATE TABLE purchase (
     id INT NOT NULL AUTO_INCREMENT,
-    user_id BINARY(16) NOT NULL,
+    user_id CHAR(36) NOT NULL,
     item_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
