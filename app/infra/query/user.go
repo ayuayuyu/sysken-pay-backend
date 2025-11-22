@@ -13,24 +13,17 @@ import (
 //TODO userデータベースに値を入れる
 // domainのrepositoryの中にあるユーザーのインターフェースの実装をする
 
-var _ repository.UserRepository = (*RegisterUserServiceImpl)(nil)
+var _ repository.UserRepository = (*UserRepositoryImpl)(nil)
 
-type RegisterUserServiceImpl struct {
+type UserRepositoryImpl struct {
 	db *sql.DB
 }
 
-func NewUserProfileRepository(db *sql.DB) *RegisterUserServiceImpl {
-	return &RegisterUserServiceImpl{db: db}
+func NewUserProfileRepository(db *sql.DB) *UserRepositoryImpl {
+	return &UserRepositoryImpl{db: db}
 }
 
-type InsertUserDTO struct {
-	UserID    uuid.UUID `json:"user_id"`
-	UserName  string    `json:"user_name"`
-	CreatedAt string    `json:"created_at"`
-	DeletedAt string    `json:"deleted_at"`
-}
-
-func (r *RegisterUserServiceImpl) InsertUser(
+func (r *UserRepositoryImpl) InsertUser(
 	ctx context.Context, userName string) (*user.User, error) {
 	u, err := user.NewUser(uuid.New(), userName)
 

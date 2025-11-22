@@ -1,9 +1,7 @@
 package config
 
 import (
-	"fmt"
 	"log/slog"
-	"os"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -71,14 +69,6 @@ func (_mysql) Location() *time.Location {
 		panic(err)
 	}
 	return loc
-}
-
-// helper to read a string environment variable and return an error when not set
-func getString(key string) (string, error) {
-	if v, ok := os.LookupEnv(key); ok && v != "" {
-		return v, nil
-	}
-	return "", fmt.Errorf("environment variable %s not set", key)
 }
 
 // Build mysql.Config
