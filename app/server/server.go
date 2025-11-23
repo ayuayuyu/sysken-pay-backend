@@ -44,13 +44,14 @@ func Run(db *sql.DB) error {
 
 	// UseCase
 	registerUserUseCase := user.NewRegisterUserUseCase(userRepo)
+	updateUserUseCase := user.NewUpdateUserUseCase(userRepo)
 	registerItemUseCase := item.NewRegisterItemUseCase(itemRepo)
 	updateItemUseCase := item.NewUpdateItemUseCase(itemRepo)
 	findItemByJanCodeUseCase := item.NewFindItemByJanCodeUseCase(itemRepo)
 	getAllItemsUseCase := item.NewGetAllItemsUseCase(itemRepo)
 
 	// Handler
-	userHandler := api_user.NewUserHandler(registerUserUseCase)
+	userHandler := api_user.NewUserHandler(registerUserUseCase, updateUserUseCase)
 	itemHandler := api_item.NewItemHandler(registerItemUseCase, updateItemUseCase, findItemByJanCodeUseCase, getAllItemsUseCase)
 
 	// ルーターの設定
@@ -72,6 +73,7 @@ func Run(db *sql.DB) error {
 		// ユーザー関連
 		r.Route("/user", func(r chi.Router) {
 			r.Post("/", userHandler.RegisterUser)
+			r.Patch("/{user_id}", userHandler.UpdateUser)
 		})
 
 		// 商品関連

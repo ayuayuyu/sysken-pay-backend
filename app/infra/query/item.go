@@ -31,15 +31,13 @@ func (r *ItemRepositoryImpl) InsertItem(ctx context.Context, janCode string, nam
 	}
 
 	query := `
-	INSERT INTO item (jan_code, name, price, created_at,updated_at, deleted_at)
-	VALUES (?, ?, ?, ?, ?, NULL)
+	INSERT INTO item (jan_code, name, price, deleted_at)
+	VALUES (?, ?, ?, NULL)
 	`
 	result, err := r.db.ExecContext(ctx, query,
 		i.JanCode(),
 		i.Name(),
 		i.Price(),
-		i.CreatedAt(),
-		i.UpdatedAt(),
 	)
 
 	if err != nil {
@@ -53,6 +51,20 @@ func (r *ItemRepositoryImpl) InsertItem(ctx context.Context, janCode string, nam
 
 	i.SetID(int(id))
 
+	row := r.db.QueryRowContext(
+		ctx,
+		`SELECT created_at, updated_at FROM item WHERE id = ?`,
+		i.ID(),
+	)
+
+	var createdAt, updatedAt time.Time
+	if err := row.Scan(&createdAt, &updatedAt); err != nil {
+		return nil, err
+	}
+
+	i.SetCreatedAt(createdAt)
+	i.SetUpdatedAt(updatedAt)
+
 	return i, nil
 }
 
@@ -65,13 +77,12 @@ func (r *ItemRepositoryImpl) UpdateItem(ctx context.Context, janCode string, nam
 
 	query := `
 	UPDATE item
-	SET name = ?, price = ?, updated_at = ?
+	SET name = ?, price = ?
 	WHERE jan_code = ? AND deleted_at IS NULL
 	`
 	_, err = r.db.ExecContext(ctx, query,
 		i.Name(),
 		i.Price(),
-		i.UpdatedAt(),
 		i.JanCode(),
 	)
 
@@ -79,17 +90,24 @@ func (r *ItemRepositoryImpl) UpdateItem(ctx context.Context, janCode string, nam
 		return nil, err
 	}
 
-	var id int
-	err = r.db.QueryRowContext(
+	row := r.db.QueryRowContext(
 		ctx,
-		`SELECT id FROM item WHERE jan_code = ? AND deleted_at IS NULL`,
+		`SELECT id, created_at, updated_at FROM item WHERE jan_code = ? AND deleted_at IS NULL`,
 		i.JanCode(),
-	).Scan(&id)
-	if err != nil {
+	)
+
+	var (
+		id        int
+		createdAt time.Time
+		updatedAt time.Time
+	)
+	if err := row.Scan(&id, &createdAt, &updatedAt); err != nil {
 		return nil, err
 	}
 
-	i.SetID(id)
+	i.SetID(int(id))
+	i.SetCreatedAt(createdAt)
+	i.SetUpdatedAt(updatedAt)
 
 	return i, nil
 }

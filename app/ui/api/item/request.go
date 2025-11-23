@@ -6,3 +6,10 @@ type PostItemRequest struct {
 	ItemName string `json:"item_name"`
 	Price    int    `json:"price"`
 }
+
+// PatchItem Request: 商品更新のリクエスト
+type PatchItemRequest struct {
+	JanCode  string `json:"jan_code"`
+	ItemName string `json:"item_name"`
+	Price    int    `json:"price"`
+}

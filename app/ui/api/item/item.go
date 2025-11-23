@@ -68,7 +68,7 @@ func (h *itemHandlerImpl) ResisterItem(w http.ResponseWriter, r *http.Request) {
 
 func (h *itemHandlerImpl) UpdateItem(w http.ResponseWriter, r *http.Request) {
 
-	var req PostItemRequest
+	var req PatchItemRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Printf("Failed to decode request body: %v", err)
 		apierrors.RespondError(w, http.StatusBadRequest, err.Error())
@@ -85,7 +85,7 @@ func (h *itemHandlerImpl) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//レスポンスの作成
-	res := toUpdateItemResponse(updatedItem)
+	res := toPatchItemResponse(updatedItem)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -98,6 +98,12 @@ func (h *itemHandlerImpl) UpdateItem(w http.ResponseWriter, r *http.Request) {
 func (h *itemHandlerImpl) GetItemByJanCode(w http.ResponseWriter, r *http.Request) {
 
 	janCode := chi.URLParam(r, "jan_code")
+	if janCode == "" {
+		log.Printf("jan_code is missing in URL")
+		apierrors.RespondError(w, http.StatusBadRequest, "jan_code is required")
+		return
+	}
+
 	ctx := r.Context()
 	//ユースケースの呼び出し
 	foundItem, err := h.findItemByJanCodeUseCase.GetItemByJanCode(ctx, janCode)

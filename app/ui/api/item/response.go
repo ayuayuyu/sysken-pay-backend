@@ -25,9 +25,19 @@ func toPostItemResponse(item *item.Item) *PostItemResponse {
 	}
 }
 
-// UpdateItemResponse Response: 商品更新のレスポンス
-func toUpdateItemResponse(item *item.Item) *PostItemResponse {
-	return &PostItemResponse{
+// PatchItemResponse Response: 商品更新のレスポンス
+type PatchItemResponse struct {
+	Status    string `json:"status"`
+	Id        int    `json:"id"`
+	JanCode   string `json:"jan_code"`
+	ItemName  string `json:"item_name"`
+	Price     int    `json:"price"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+func toPatchItemResponse(item *item.Item) *PatchItemResponse {
+	return &PatchItemResponse{
 		Status:    "success",
 		Id:        item.ID(),
 		JanCode:   item.JanCode(),

@@ -86,6 +86,63 @@ func isValidJanCode(janCode string) bool {
 	return checkDigit == calculatedCheckDigit
 }
 
+func (u *Item) SetCreatedAt(createdAt time.Time) error {
+
+	// createdAtは未来の日付でないこと
+	if createdAt.After(time.Now()) {
+		return errors.New("createdAt must not be in the future")
+	}
+
+	// createdAtのタイムゾーンはJSTであること
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jstCreatedAt := createdAt.In(jst)
+	if !createdAt.Equal(jstCreatedAt) {
+		return errors.New("createdAt must be in JST")
+	}
+
+	u.createdAt = createdAt
+
+	return nil
+}
+
+func (u *Item) SetUpdatedAt(updatedAt time.Time) error {
+
+	// updatedAtは未来の日付でないこと
+	if updatedAt.After(time.Now()) {
+		return errors.New("updatedAt must not be in the future")
+	}
+
+	// updatedAtのタイムゾーンはJSTであること
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jstUpdatedAt := updatedAt.In(jst)
+	if !updatedAt.Equal(jstUpdatedAt) {
+		return errors.New("updatedAt must be in JST")
+	}
+
+	u.updatedAt = updatedAt
+
+	return nil
+}
+
+func (u *Item) SetDeletedAt(deletedAt time.Time) error {
+
+	// deletedAtは未来の日付でないこと
+	if deletedAt.After(time.Now()) {
+		return errors.New("deletedAt must not be in the future")
+	}
+
+	// deletedAtのタイムゾーンはJSTであること
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jstDeletedAt := deletedAt.In(jst)
+	if !deletedAt.Equal(jstDeletedAt) {
+		return errors.New("deletedAt must be in JST")
+	}
+
+	u.deletedAt = deletedAt
+
+	return nil
+}
+
 func (p *Item) ID() int {
 	return p.id
 }

@@ -16,21 +16,8 @@ type User struct {
 	userID    uuid.UUID
 	userName  string
 	createdAt time.Time
+	updatedAt time.Time
 	deletedAt time.Time
-}
-
-func NewUser(userID uuid.UUID, userName string) (*User, error) {
-	user := &User{}
-
-	if err := user.SetUserID(userID); err != nil {
-		return nil, err
-	}
-	if err := user.SetUserName(userName); err != nil {
-		return nil, err
-	}
-	user.createdAt = time.Now()
-
-	return user, nil
 }
 
 func (p *User) SetUserID(userID uuid.UUID) error {
@@ -58,6 +45,63 @@ func (p *User) SetUserName(userName string) error {
 	return nil
 }
 
+func (u *User) SetCreatedAt(createdAt time.Time) error {
+
+	// createdAtは未来の日付でないこと
+	if createdAt.After(time.Now()) {
+		return errors.New("createdAt must not be in the future")
+	}
+
+	// createdAtのタイムゾーンはJSTであること
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jstCreatedAt := createdAt.In(jst)
+	if !createdAt.Equal(jstCreatedAt) {
+		return errors.New("createdAt must be in JST")
+	}
+
+	u.createdAt = createdAt
+
+	return nil
+}
+
+func (u *User) SetUpdatedAt(updatedAt time.Time) error {
+
+	// updatedAtは未来の日付でないこと
+	if updatedAt.After(time.Now()) {
+		return errors.New("updatedAt must not be in the future")
+	}
+
+	// updatedAtのタイムゾーンはJSTであること
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jstUpdatedAt := updatedAt.In(jst)
+	if !updatedAt.Equal(jstUpdatedAt) {
+		return errors.New("updatedAt must be in JST")
+	}
+
+	u.updatedAt = updatedAt
+
+	return nil
+}
+
+func (u *User) SetDeletedAt(deletedAt time.Time) error {
+
+	// deletedAtは未来の日付でないこと
+	if deletedAt.After(time.Now()) {
+		return errors.New("deletedAt must not be in the future")
+	}
+
+	// deletedAtのタイムゾーンはJSTであること
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jstDeletedAt := deletedAt.In(jst)
+	if !deletedAt.Equal(jstDeletedAt) {
+		return errors.New("deletedAt must be in JST")
+	}
+
+	u.deletedAt = deletedAt
+
+	return nil
+}
+
 func (p *User) ID() uuid.UUID {
 	return p.userID
 }
@@ -67,6 +111,9 @@ func (p *User) UserName() string {
 }
 func (p *User) CreatedAt() time.Time {
 	return p.createdAt
+}
+func (p *User) UpdatedAt() time.Time {
+	return p.updatedAt
 }
 func (p *User) DeletedAt() time.Time {
 	return p.deletedAt

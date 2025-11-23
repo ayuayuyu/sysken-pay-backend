@@ -1,9 +1,5 @@
 package item
 
-import (
-	"time"
-)
-
 func UpdateItem(janCode string, name string, price int) (*Item, error) {
 	p := &Item{}
 
@@ -16,7 +12,6 @@ func UpdateItem(janCode string, name string, price int) (*Item, error) {
 	if err := p.SetPrice(price); err != nil {
 		return nil, err
 	}
-	p.updatedAt = time.Now()
 
 	return p, nil
 }

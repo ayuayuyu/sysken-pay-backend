@@ -15,21 +15,21 @@ type RegisterUserUseCase interface {
 }
 
 type RegisterUserServiceImpl struct {
-	userRepo repository.UserRepository
+	userRegisterRepo repository.UserRepository
 }
 
 func NewRegisterUserUseCase(
-	userRepo repository.UserRepository,
+	userRegisterRepo repository.UserRepository,
 ) *RegisterUserServiceImpl {
 	return &RegisterUserServiceImpl{
-		userRepo: userRepo,
+		userRegisterRepo: userRegisterRepo,
 	}
 }
 
 func (s *RegisterUserServiceImpl) RegisterUser(
 	ctx context.Context, userName string) (*user.User, error) {
 
-	createdUser, err := s.userRepo.InsertUser(ctx, userName)
+	createdUser, err := s.userRegisterRepo.InsertUser(ctx, userName)
 	if err != nil {
 		log.Printf("Failed to insert user: %v", err)
 		return nil, err
