@@ -11,6 +11,7 @@ type PostUserResponse struct {
 	UserID    uuid.UUID `json:"user_id"`
 	UserName  string    `json:"user_name"`
 	CreatedAt string    `json:"created_at"`
+	UpdatedAt string    `json:"updated_at"`
 }
 
 func toPostUserResponse(user *user.User) *PostUserResponse {
@@ -19,6 +20,7 @@ func toPostUserResponse(user *user.User) *PostUserResponse {
 		UserID:    user.ID(),
 		UserName:  user.UserName(),
 		CreatedAt: user.CreatedAt().Format("2006-01-02T15:04:05.000Z"),
+		UpdatedAt: user.UpdatedAt().Format("2006-01-02T15:04:05.000Z"),
 	}
 }
 
@@ -26,6 +28,7 @@ type PatchUserResponse struct {
 	Status    string    `json:"status"`
 	UserID    uuid.UUID `json:"user_id"`
 	UserName  string    `json:"user_name"`
+	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
 }
 
@@ -34,6 +37,7 @@ func toPatchUserResponse(user *user.User) *PatchUserResponse {
 		Status:    "success",
 		UserID:    user.ID(),
 		UserName:  user.UserName(),
+		CreatedAt: user.CreatedAt().Format("2006-01-02T15:04:05.000Z"),
 		UpdatedAt: user.UpdatedAt().Format("2006-01-02T15:04:05.000Z"),
 	}
 }
