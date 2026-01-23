@@ -1,8 +1,8 @@
 -- データベースがなければ作成する
-CREATE DATABASE IF NOT EXISTS app;
+CREATE DATABASE IF NOT EXISTS sysken_pay;
 
--- 'app' データベースを使用する
-USE app;
+-- 'sysken_pay' データベースを使用する
+USE sysken_pay;
 
 -- ---------------------------------
 -- 1. user テーブル (ユーザー)
@@ -59,3 +59,26 @@ CREATE TABLE purchase (
     FOREIGN KEY (user_id) REFERENCES `user`(id),
     FOREIGN KEY (item_id) REFERENCES item(id)
 );
+
+-- ---------------------------------
+-- 5. balance テーブル (残高変動ログ)
+-- ---------------------------------
+-- ユーザーごとの残高レコードを更新(UPDATE)し続けると、アクセス集中時に行ロックの競合が発生しやすくなります。
+-- そのため、入出金の履歴を追記(INSERT)していき、残高は SUM(amount) で算出する設計にします。
+-- これにより、chargeとpurchaseの両方と紐づく中間テーブルのような役割も果たします。
+CREATE TABLE balance (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id CHAR(36) NOT NULL,
+    charge_id INT DEFAULT NULL,   -- チャージ由来の場合にIDが入る
+    purchase_id INT DEFAULT NULL, -- 購入由来の場合にIDが入る
+    amount INT NOT NULL,          -- 変動額（入金はプラス、出金はマイナス）
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES `user`(id),
+    FOREIGN KEY (charge_id) REFERENCES charge(id),
+    FOREIGN KEY (purchase_id) REFERENCES purchase(id),
+    
+    INDEX idx_user_id (user_id) -- 残高集計(SUM)を高速化するためのインデックス
+);
+
