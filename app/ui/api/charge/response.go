@@ -1,21 +1,47 @@
 package charge
 
-type ChargeReseponse struct {
-	Status     string `json:"status"`
-	ChargeID   string `json:"charge_id"`
-	Amount     int    `json:"charge_amount"`
-	UserID     string `json:"user_id"`
-	Balance    int    `json:"balance"`
-	CreatedAt  string `json:"created_at"`
+import (
+	"sysken-pay-api/app/domain/object/charge"
+
+	"github.com/google/uuid"
+)
+
+type ChargeResponse struct {
+	Status    string    `json:"status"`
+	ChargeID  int       `json:"charge_id"`
+	Amount    int       `json:"charge_amount"`
+	UserID    uuid.UUID `json:"user_id"`
+	Balance   int       `json:"balance"`
+	CreatedAt string    `json:"created_at"`
 }
 
-func toChargeResponse(chargeID string, amount int, userID string, balance int, createdAt string) *ChargeReseponse {
-	return &ChargeReseponse{
+func toPostChargeResponse(charge *charge.Charge) *ChargeResponse {
+	return &ChargeResponse{
 		Status:    "success",
-		ChargeID:  chargeID,
-		Amount:    amount,
-		UserID:    userID,
-		Balance:   balance,
-		CreatedAt: createdAt,
+		ChargeID:  charge.ID(),
+		Amount:    charge.Amount(),
+		UserID:    charge.UserID(),
+		Balance:   charge.Balance(),
+		CreatedAt: charge.CreatedAt().Format("2006-01-02T15:04:05.000Z"),
+	}
+}
+
+type ChargeCancelResponse struct {
+	Status    string    `json:"status"`
+	ChargeID  int       `json:"charge_id"`
+	Amount    int       `json:"canceled_amount"`
+	UserID    uuid.UUID `json:"user_id"`
+	Balance   int       `json:"balance"`
+	CreatedAt string    `json:"created_at"`
+}
+
+func toPostChargeCancelResponse(charge *charge.Charge) *ChargeCancelResponse {
+	return &ChargeCancelResponse{
+		Status:    "success",
+		ChargeID:  charge.ID(),
+		Amount:    charge.Amount(),
+		UserID:    charge.UserID(),
+		Balance:   charge.Balance(),
+		CreatedAt: charge.CreatedAt().Format("2006-01-02T15:04:05.000Z"),
 	}
 }

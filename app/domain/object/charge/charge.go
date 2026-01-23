@@ -14,6 +14,7 @@ type Charge struct {
 	id        int
 	userID    uuid.UUID
 	amount    int
+	balance   int
 	createdAt time.Time
 	deletedAt time.Time
 }
@@ -39,6 +40,14 @@ func (c *Charge) SetAmount(amount int) error {
 		return errors.New("amount must be positive")
 	}
 	c.amount = amount
+	return nil
+}
+
+func (c *Charge) SetBalance(balance int) error {
+	if balance < 0 {
+		return errors.New("balance must be non-negative")
+	}
+	c.balance = balance
 	return nil
 }
 
@@ -90,6 +99,10 @@ func (c *Charge) UserID() uuid.UUID {
 
 func (c *Charge) Amount() int {
 	return c.amount
+}
+
+func (c *Charge) Balance() int {
+	return c.balance
 }
 
 func (c *Charge) CreatedAt() time.Time {

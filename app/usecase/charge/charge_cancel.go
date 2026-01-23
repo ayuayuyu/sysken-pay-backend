@@ -1,12 +1,15 @@
 package charge
 
 import (
+	"context"
 	"sysken-pay-api/app/domain/object/charge"
 	"sysken-pay-api/app/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 type ChargeCancelUseCase interface {
-	ChargeCancel(userID string, amount int) (*charge.Charge, error)
+	ChargeCancel(ctx context.Context, userID uuid.UUID, amount int) (*charge.Charge, error)
 }
 
 type ChargeCancelServiceImpl struct {
@@ -22,9 +25,9 @@ func NewChargeCancelUseCase(
 }
 
 func (s *ChargeCancelServiceImpl) ChargeCancel(
-	userID string, amount int) (*charge.Charge, error) {
+	ctx context.Context, userID uuid.UUID, amount int) (*charge.Charge, error) {
 
-	canceledCharge, err := s.chargeCancelRepo.ChargeCancel(userID, amount)
+	canceledCharge, err := s.chargeCancelRepo.ChargeCancel(ctx, userID, amount)
 	if err != nil {
 		return nil, err
 	}

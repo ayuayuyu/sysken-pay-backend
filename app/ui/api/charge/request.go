@@ -1,9 +1,9 @@
 package charge
 
-type ChargeRequest struct {
+type PostChargeRequest struct {
 	Amount int `json:"amount"`
 }
 
-type ChargeCancelRequest struct {
+type PostChargeCancelRequest struct {
 	Amount int `json:"amount"`
 }
