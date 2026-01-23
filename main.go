@@ -10,6 +10,7 @@ func main() {
 	db, err := server.NewDB(config.MySQLConfig())
 	if err != nil {
 		slog.Error("failed to create db", "err", err)
+		return
 	}
 	defer db.Close()
 
