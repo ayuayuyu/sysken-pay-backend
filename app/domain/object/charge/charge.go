@@ -64,9 +64,7 @@ func (c *Charge) SetCreatedAt(createdAt time.Time) error {
 	if !createdAt.Equal(jstCreatedAt) {
 		return errors.New("createdAt must be in JST")
 	}
-
 	c.createdAt = createdAt
-
 	return nil
 }
 
@@ -83,9 +81,7 @@ func (c *Charge) SetDeletedAt(deletedAt time.Time) error {
 	if !deletedAt.Equal(jstDeletedAt) {
 		return errors.New("deletedAt must be in JST")
 	}
-
 	c.deletedAt = deletedAt
-
 	return nil
 }
 

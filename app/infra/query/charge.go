@@ -22,7 +22,7 @@ func NewChargeRepository(db *sql.DB) *ChargeRepositoryImpl {
 	}
 }
 
-// TODO ChargeAmountメソッドの実装
+// ChargeAmount は指定された金額をチャージし、チャージ情報を返す
 func (r *ChargeRepositoryImpl) ChargeAmount(ctx context.Context, userID uuid.UUID, amount int) (*charge.Charge, error) {
 	c, err := charge.NewCharge(userID, amount)
 	if err != nil {
