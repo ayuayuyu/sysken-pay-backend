@@ -79,7 +79,7 @@ func (r *ChargeRepositoryImpl) ChargeAmount(ctx context.Context, userID uuid.UUI
 	return c, nil
 }
 
-// TODO ChargeCancelメソッドの実装
+
 // ChargeCancel は本来「特定のチャージIDを取り消す」べきですが、インターフェースが (userID, amount) なので
 // 「指定された金額分のチャージを取り消す（=残高を減らす）」処理として実装します。
 // chargeテーブルのレコードを論理削除し、balanceテーブルでマイナスを記録します。
