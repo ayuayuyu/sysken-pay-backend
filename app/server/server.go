@@ -15,9 +15,11 @@ import (
 	api_charge "sysken-pay-api/app/ui/api/charge"
 	"sysken-pay-api/app/ui/api/health"
 	api_item "sysken-pay-api/app/ui/api/item"
+	api_purchase "sysken-pay-api/app/ui/api/purchase"
 	api_user "sysken-pay-api/app/ui/api/user"
 	"sysken-pay-api/app/usecase/charge"
 	"sysken-pay-api/app/usecase/item"
+	"sysken-pay-api/app/usecase/purchase"
 	"sysken-pay-api/app/usecase/user"
 	"time"
 
@@ -44,6 +46,7 @@ func Run(db *sql.DB) error {
 	userRepo := query.NewUserProfileRepository(db)
 	itemRepo := query.NewItemRepository(db)
 	chargeRepo := query.NewChargeRepository(db)
+	purchaseRepo := query.NewPurchaseRepository(db)
 
 	// UseCase
 	registerUserUseCase := user.NewRegisterUserUseCase(userRepo)
@@ -54,12 +57,14 @@ func Run(db *sql.DB) error {
 	getAllItemsUseCase := item.NewGetAllItemsUseCase(itemRepo)
 	chargeAmountUseCase := charge.NewChargeAmountUseCase(chargeRepo)
 	chargeCancelUseCase := charge.NewChargeCancelUseCase(chargeRepo)
+	createPurchaseUseCase := purchase.NewCreatePurchaseUseCase(purchaseRepo)
+	cancelPurchaseUseCase := purchase.NewCancelPurchaseUseCase(purchaseRepo)
 
 	// Handler
 	userHandler := api_user.NewUserHandler(registerUserUseCase, updateUserUseCase)
 	itemHandler := api_item.NewItemHandler(registerItemUseCase, updateItemUseCase, findItemByJanCodeUseCase, getAllItemsUseCase)
 	chargeHandler := api_charge.NewChargeHandler(chargeAmountUseCase, chargeCancelUseCase)
-
+	purchaseHandler := api_purchase.NewPurchaseHandler(createPurchaseUseCase, cancelPurchaseUseCase)
 	// ルーターの設定
 	r := chi.NewRouter()
 
@@ -82,6 +87,8 @@ func Run(db *sql.DB) error {
 			r.Patch("/{user_id}", userHandler.UpdateUser)
 			r.Post("/{user_id}/charge", chargeHandler.ChargeAmount)
 			r.Post("/{user_id}/charge/cancel", chargeHandler.ChargeCancel)
+			r.Post("/{user_id}/purchase", purchaseHandler.CreatePurchase)
+			r.Post("/{user_id}/purchase/cancel", purchaseHandler.CancelPurchase)
 		})
 
 		// 商品関連
