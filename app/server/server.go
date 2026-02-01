@@ -11,7 +11,8 @@ import (
 	"strconv"
 	"syscall"
 	"sysken-pay-api/app/config"
-	"sysken-pay-api/app/infra/query"
+	"sysken-pay-api/app/infra/repository"
+	"sysken-pay-api/app/infra/transaction"
 	api_charge "sysken-pay-api/app/ui/api/charge"
 	"sysken-pay-api/app/ui/api/health"
 	api_item "sysken-pay-api/app/ui/api/item"
@@ -42,11 +43,14 @@ const (
 func Run(db *sql.DB) error {
 	addr := ":" + strconv.Itoa(config.Port())
 
+	// Transaction
+	txManager := transaction.NewTransaction(db)
+
 	// Repository
-	userRepo := query.NewUserProfileRepository(db)
-	itemRepo := query.NewItemRepository(db)
-	chargeRepo := query.NewChargeRepository(db)
-	purchaseRepo := query.NewPurchaseRepository(db)
+	userRepo := repository.NewUserProfileRepository(db)
+	itemRepo := repository.NewItemRepository(db)
+	chargeRepo := repository.NewChargeRepository(db)
+	purchaseRepo := repository.NewPurchaseRepository(db)
 
 	// UseCase
 	registerUserUseCase := user.NewRegisterUserUseCase(userRepo)
@@ -57,7 +61,7 @@ func Run(db *sql.DB) error {
 	getAllItemsUseCase := item.NewGetAllItemsUseCase(itemRepo)
 	chargeAmountUseCase := charge.NewChargeAmountUseCase(chargeRepo)
 	chargeCancelUseCase := charge.NewChargeCancelUseCase(chargeRepo)
-	createPurchaseUseCase := purchase.NewCreatePurchaseUseCase(purchaseRepo)
+	createPurchaseUseCase := purchase.NewCreatePurchaseUseCase(purchaseRepo, txManager)
 	cancelPurchaseUseCase := purchase.NewCancelPurchaseUseCase(purchaseRepo)
 
 	// Handler

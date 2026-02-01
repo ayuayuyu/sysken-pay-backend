@@ -20,5 +20,5 @@
 
 
 .env
-
+*.md
 .DS_Store

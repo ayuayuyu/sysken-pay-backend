@@ -1,4 +1,4 @@
-package query
+package repository
 
 import (
 	"context"
@@ -6,8 +6,6 @@ import (
 	"sysken-pay-api/app/domain/object/purchase"
 	"sysken-pay-api/app/domain/repository"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var _ repository.PurchaseRepository = (*PurchaseRepositoryImpl)(nil)
@@ -22,27 +20,9 @@ func NewPurchaseRepository(db *sql.DB) *PurchaseRepositoryImpl {
 	}
 }
 
-func (r *PurchaseRepositoryImpl) CreatePurchase(ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
-	p, err := purchase.NewPurchase(userID, items)
-	if err != nil {
-		return nil, err
-	}
+func (r *PurchaseRepositoryImpl) CreatePurchase(ctx context.Context, p *purchase.Purchase) (*purchase.Purchase, error) {
 
-	// トランザクション開始
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			tx.Rollback()
-			panic(p)
-		} else if err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit()
-		}
-	}()
+	executor := getExecutor(ctx, r.db)
 
 	// 合計金額を計算し、各商品の価格を取得する
 	var totalAmount int
@@ -53,10 +33,10 @@ func (r *PurchaseRepositoryImpl) CreatePurchase(ctx context.Context, userID uuid
 	}
 	var itemsToInsert []itemData
 
-	for _, pi := range items {
+	for _, pi := range p.Items() {
 		var price int
 		// 商品の価格を取得
-		err = tx.QueryRowContext(ctx, "SELECT price FROM item WHERE id = ?", pi.ItemID()).Scan(&price)
+		err := executor.QueryRowContext(ctx, "SELECT price FROM item WHERE id = ?", pi.ItemID()).Scan(&price)
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +50,7 @@ func (r *PurchaseRepositoryImpl) CreatePurchase(ctx context.Context, userID uuid
 
 	// purchaseテーブルへの挿入
 	queryPurchase := `INSERT INTO purchase (user_id) VALUES (?)`
-	res, err := tx.ExecContext(ctx, queryPurchase, userID)
+	res, err := executor.ExecContext(ctx, queryPurchase, p.UserID())
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +62,7 @@ func (r *PurchaseRepositoryImpl) CreatePurchase(ctx context.Context, userID uuid
 
 	// purchase_itemテーブルへの挿入
 	queryPurchaseItem := `INSERT INTO purchase_item (purchase_id, item_id, quantity, price_at_purchase) VALUES (?, ?, ?, ?)`
-	stmt, err := tx.PrepareContext(ctx, queryPurchaseItem)
+	stmt, err := executor.PrepareContext(ctx, queryPurchaseItem)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +77,7 @@ func (r *PurchaseRepositoryImpl) CreatePurchase(ctx context.Context, userID uuid
 
 	// balanceテーブルへの挿入 (購入なのでamountはマイナス)
 	queryBalance := `INSERT INTO balance (user_id, purchase_id, amount) VALUES (?, ?, ?)`
-	_, err = tx.ExecContext(ctx, queryBalance, userID, purchaseID, -totalAmount)
+	_, err = executor.ExecContext(ctx, queryBalance, p.UserID(), purchaseID, -totalAmount)
 	if err != nil {
 		return nil, err
 	}
@@ -108,35 +88,17 @@ func (r *PurchaseRepositoryImpl) CreatePurchase(ctx context.Context, userID uuid
 	return p, nil
 }
 
-func (r *PurchaseRepositoryImpl) CancelPurchase(ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
-	p, err := purchase.DeletePurchase(userID, items)
-	if err != nil {
-		return nil, err
-	}
+func (r *PurchaseRepositoryImpl) CancelPurchase(ctx context.Context, p *purchase.Purchase) (*purchase.Purchase, error) {
 
-	// トランザクション開始
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			tx.Rollback()
-			panic(p)
-		} else if err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit()
-		}
-	}()
+	executor := getExecutor(ctx, r.db)
 
 	// 合計金額を計算
 	var totalAmount int
 
-	for _, pi := range items {
+	for _, pi := range p.Items() {
 		var price int
 		// 商品の価格を取得
-		err = tx.QueryRowContext(ctx, "SELECT price FROM item WHERE id = ?", pi.ItemID()).Scan(&price)
+		err := executor.QueryRowContext(ctx, "SELECT price FROM item WHERE id = ?", pi.ItemID()).Scan(&price)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +107,7 @@ func (r *PurchaseRepositoryImpl) CancelPurchase(ctx context.Context, userID uuid
 
 	// balanceテーブルへの挿入 (キャンセルなのでamountはプラス)
 	queryBalance := `INSERT INTO balance (user_id, amount) VALUES (?, ?)`
-	_, err = tx.ExecContext(ctx, queryBalance, userID, totalAmount)
+	_, err := executor.ExecContext(ctx, queryBalance, p.UserID(), totalAmount)
 	if err != nil {
 		return nil, err
 	}

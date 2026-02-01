@@ -1,4 +1,4 @@
-package query
+package repository
 
 import (
 	"context"
@@ -25,19 +25,15 @@ func NewUserProfileRepository(db *sql.DB) *UserRepositoryImpl {
 }
 
 func (r *UserRepositoryImpl) InsertUser(
-	ctx context.Context, userName string) (*user.User, error) {
-	u, err := user.NewUser(uuid.New(), userName)
+	ctx context.Context, u *user.User) (*user.User, error) {
 
-	if err != nil {
-		log.Printf("Failed to create user domain object: %v", err)
-		return nil, err
-	}
+	executor := getExecutor(ctx, r.db)
 
 	query := `
     INSERT INTO ` + "`user`" + ` (id, name, deleted_at)
     VALUES (?, ?,  NULL)
 	`
-	_, err = r.db.ExecContext(ctx, query,
+	_, err := executor.ExecContext(ctx, query,
 		u.ID(),
 		u.UserName(),
 	)
@@ -47,7 +43,7 @@ func (r *UserRepositoryImpl) InsertUser(
 		return nil, err
 	}
 
-	row := r.db.QueryRowContext(ctx, `
+	row := executor.QueryRowContext(ctx, `
     SELECT created_at, updated_at FROM `+"`user`"+` WHERE id = ?
 	`, u.ID())
 
@@ -74,10 +70,12 @@ func (r *UserRepositoryImpl) UpdateUser(
 
 	u.SetUserID(userID)
 
+	executor := getExecutor(ctx, r.db)
+
 	query := `
 	UPDATE ` + "`user`" + ` SET name = ? WHERE id = ? AND deleted_at IS NULL
 	`
-	_, err = r.db.ExecContext(ctx, query,
+	_, err = executor.ExecContext(ctx, query,
 		u.UserName(),
 		u.ID(),
 	)
@@ -86,7 +84,7 @@ func (r *UserRepositoryImpl) UpdateUser(
 		log.Printf("Failed to update user: %v", err)
 		return nil, err
 	}
-	row := r.db.QueryRowContext(ctx, `
+	row := executor.QueryRowContext(ctx, `
 	SELECT created_at, updated_at FROM `+"`user`"+` WHERE id = ?
 	`, u.ID())
 

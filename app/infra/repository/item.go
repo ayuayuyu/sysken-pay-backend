@@ -1,4 +1,4 @@
-package query
+package repository
 
 import (
 	"context"
@@ -24,17 +24,15 @@ func NewItemRepository(db *sql.DB) *ItemRepositoryImpl {
 }
 
 // TODO InsertItemメソッドの実装
-func (r *ItemRepositoryImpl) InsertItem(ctx context.Context, janCode string, name string, price int) (*item.Item, error) {
-	i, err := item.NewItem(janCode, name, price)
-	if err != nil {
-		return nil, err
-	}
+func (r *ItemRepositoryImpl) InsertItem(ctx context.Context, i *item.Item) (*item.Item, error) {
+
+	executor := getExecutor(ctx, r.db)
 
 	query := `
 	INSERT INTO item (jan_code, name, price, deleted_at)
 	VALUES (?, ?, ?, NULL)
 	`
-	result, err := r.db.ExecContext(ctx, query,
+	result, err := executor.ExecContext(ctx, query,
 		i.JanCode(),
 		i.Name(),
 		i.Price(),
@@ -51,7 +49,7 @@ func (r *ItemRepositoryImpl) InsertItem(ctx context.Context, janCode string, nam
 
 	i.SetID(int(id))
 
-	row := r.db.QueryRowContext(
+	row := executor.QueryRowContext(
 		ctx,
 		`SELECT created_at, updated_at FROM item WHERE id = ?`,
 		i.ID(),
@@ -69,18 +67,16 @@ func (r *ItemRepositoryImpl) InsertItem(ctx context.Context, janCode string, nam
 }
 
 // TODO UpdateItemメソッドの実装
-func (r *ItemRepositoryImpl) UpdateItem(ctx context.Context, janCode string, name string, price int) (*item.Item, error) {
-	i, err := item.UpdateItem(janCode, name, price)
-	if err != nil {
-		return nil, err
-	}
+func (r *ItemRepositoryImpl) UpdateItem(ctx context.Context, i *item.Item) (*item.Item, error) {
+
+	executor := getExecutor(ctx, r.db)
 
 	query := `
 	UPDATE item
 	SET name = ?, price = ?
 	WHERE jan_code = ? AND deleted_at IS NULL
 	`
-	_, err = r.db.ExecContext(ctx, query,
+	_, err := executor.ExecContext(ctx, query,
 		i.Name(),
 		i.Price(),
 		i.JanCode(),
@@ -90,7 +86,7 @@ func (r *ItemRepositoryImpl) UpdateItem(ctx context.Context, janCode string, nam
 		return nil, err
 	}
 
-	row := r.db.QueryRowContext(
+	row := executor.QueryRowContext(
 		ctx,
 		`SELECT id, created_at, updated_at FROM item WHERE jan_code = ? AND deleted_at IS NULL`,
 		i.JanCode(),
@@ -115,13 +111,15 @@ func (r *ItemRepositoryImpl) UpdateItem(ctx context.Context, janCode string, nam
 // TODO GetItemByJanCodeメソッドの実装
 func (r *ItemRepositoryImpl) GetItemByJanCode(ctx context.Context, janCode string) (*item.Item, error) {
 
+	executor := getExecutor(ctx, r.db)
+
 	query := `
 	SELECT id, jan_code, name, price, created_at, updated_at, deleted_at
 	FROM item
 	WHERE jan_code = ? AND deleted_at IS NULL
 	`
 
-	row := r.db.QueryRowContext(ctx, query, janCode)
+	row := executor.QueryRowContext(ctx, query, janCode)
 
 	var (
 		id        int
@@ -173,13 +171,15 @@ func (r *ItemRepositoryImpl) GetItemByJanCode(ctx context.Context, janCode strin
 
 // TODO GetAllItemsメソッドの実装
 func (r *ItemRepositoryImpl) GetAllItems(ctx context.Context) ([]*item.Item, error) {
+	executor := getExecutor(ctx, r.db)
+
 	query := `
 	SELECT id, jan_code, name, price, created_at, updated_at, deleted_at
 	FROM item
 	WHERE deleted_at IS NULL
 	`
 
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := executor.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}

@@ -4,24 +4,25 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"sysken-pay-api/app/domain/repository"
 )
 
 // key はcontextのキーとして使用する型です
 type key struct{}
-
-// Transaction はトランザクション制御を行うインターフェースです。
-type Transaction interface {
-	// Do はトランザクション内で関数 f を実行します。
-	Do(ctx context.Context, f func(ctx context.Context) error) error
-}
 
 type transaction struct {
 	db *sql.DB
 }
 
 // NewTransaction は Transaction の新しいインスタンスを生成します。
-func NewTransaction(db *sql.DB) Transaction {
+func NewTransaction(db *sql.DB) repository.Transaction {
 	return &transaction{db: db}
+}
+
+// GetTx はコンテキストからトランザクションを取得します。
+func GetTx(ctx context.Context) (*sql.Tx, bool) {
+	tx, ok := ctx.Value(key{}).(*sql.Tx)
+	return tx, ok
 }
 
 // Do はトランザクション内で関数 f を実行します。
