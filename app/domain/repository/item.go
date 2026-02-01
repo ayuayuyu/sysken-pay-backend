@@ -12,11 +12,11 @@ import (
 type ItemRepository interface {
 	// 商品を新規作成して保存する
 	// 保存に成功した場合は保存した商品を返す
-	InsertItem(ctx context.Context, janCode string, name string, price int) (*item.Item, error)
+	InsertItem(ctx context.Context, item *item.Item) (*item.Item, error)
 
 	// 商品を更新する
 	// 更新に成功した場合は更新した商品を返す
-	UpdateItem(ctx context.Context, janCode string, name string, price int) (*item.Item, error)
+	UpdateItem(ctx context.Context, item *item.Item) (*item.Item, error)
 
 	// 商品をJANコードで取得する
 	// 取得に成功した場合は取得した商品を返す

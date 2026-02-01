@@ -27,7 +27,12 @@ func NewRegisterItemUseCase(
 func (s *RegisterItemServiceImpl) RegisterItem(
 	ctx context.Context, janCode string, itemName string, price int) (*item.Item, error) {
 
-	createdItem, err := s.itemRegisterRepo.InsertItem(ctx, janCode, itemName, price)
+	i, err := item.NewItem(janCode, itemName, price)
+	if err != nil {
+		return nil, err
+	}
+
+	createdItem, err := s.itemRegisterRepo.InsertItem(ctx, i)
 	if err != nil {
 		return nil, err
 	}

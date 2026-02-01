@@ -27,7 +27,12 @@ func NewUpdateItemUseCase(
 func (s *UpdateItemServiceImpl) UpdateItem(
 	ctx context.Context, janCode string, itemName string, price int) (*item.Item, error) {
 
-	updateItem, err := s.itemUpdateRepo.UpdateItem(ctx, janCode, itemName, price)
+	i, err := item.UpdateItem(janCode, itemName, price)
+	if err != nil {
+		return nil, err
+	}
+
+	updateItem, err := s.itemUpdateRepo.UpdateItem(ctx, i)
 	if err != nil {
 		return nil, err
 	}

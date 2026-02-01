@@ -27,7 +27,12 @@ func NewCancelPurchaseUseCase(
 func (s *CancelPurchaseServiceImpl) CancelPurchase(
 	ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
 
-	canceledPurchase, err := s.purchaseCancelRepo.CancelPurchase(ctx, userID, items)
+	p, err := purchase.DeletePurchase(userID, items)
+	if err != nil {
+		return nil, err
+	}
+
+	canceledPurchase, err := s.purchaseCancelRepo.CancelPurchase(ctx, p)
 	if err != nil {
 		return nil, err
 	}

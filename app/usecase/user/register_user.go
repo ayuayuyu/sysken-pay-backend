@@ -5,6 +5,8 @@ import (
 	"log"
 	"sysken-pay-api/app/domain/object/user"
 	"sysken-pay-api/app/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 // TODO ドメイン層のインターフェースに接続をして処理を完成させる
@@ -29,7 +31,14 @@ func NewRegisterUserUseCase(
 func (s *RegisterUserServiceImpl) RegisterUser(
 	ctx context.Context, userName string) (*user.User, error) {
 
-	createdUser, err := s.userRegisterRepo.InsertUser(ctx, userName)
+	// ドメインオブジェクトの生成
+	u, err := user.NewUser(uuid.New(), userName)
+	if err != nil {
+		log.Printf("Failed to create user object: %v", err)
+		return nil, err
+	}
+
+	createdUser, err := s.userRegisterRepo.InsertUser(ctx, u)
 	if err != nil {
 		log.Printf("Failed to insert user: %v", err)
 		return nil, err

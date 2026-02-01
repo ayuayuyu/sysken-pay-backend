@@ -13,7 +13,7 @@ import (
 type UserRepository interface {
 	// ユーザーを新規作成して保存する
 	// 保存に成功した場合は保存したユーザーを返す
-	InsertUser(ctx context.Context, userName string) (*user.User, error)
+	InsertUser(ctx context.Context, u *user.User) (*user.User, error)
 
 	// ユーザー情報を更新して保存する
 	// 保存に成功した場合は保存したユーザーを返す

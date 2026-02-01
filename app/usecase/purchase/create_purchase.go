@@ -14,20 +14,35 @@ type CreatePurchaseUseCase interface {
 
 type CreatePurchaseServiceImpl struct {
 	purchaseCreateRepo repository.PurchaseRepository
+	txManager          repository.Transaction
 }
 
 func NewCreatePurchaseUseCase(
 	purchaseCreateRepo repository.PurchaseRepository,
+	txManager repository.Transaction,
 ) *CreatePurchaseServiceImpl {
 	return &CreatePurchaseServiceImpl{
 		purchaseCreateRepo: purchaseCreateRepo,
+		txManager:          txManager,
 	}
 }
 
 func (s *CreatePurchaseServiceImpl) CreatePurchase(
 	ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
 
-	createdPurchase, err := s.purchaseCreateRepo.CreatePurchase(ctx, userID, items)
+	p, err := purchase.NewPurchase(userID, items)
+	if err != nil {
+		return nil, err
+	}
+
+	var createdPurchase *purchase.Purchase
+
+	err = s.txManager.Do(ctx, func(ctx context.Context) error {
+		var err error
+		createdPurchase, err = s.purchaseCreateRepo.CreatePurchase(ctx, p)
+		return err
+	})
+
 	if err != nil {
 		return nil, err
 	}

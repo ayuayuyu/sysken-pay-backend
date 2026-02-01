@@ -27,7 +27,12 @@ func NewChargeCancelUseCase(
 func (s *ChargeCancelServiceImpl) ChargeCancel(
 	ctx context.Context, userID uuid.UUID, amount int) (*charge.Charge, error) {
 
-	canceledCharge, err := s.chargeCancelRepo.ChargeCancel(ctx, userID, amount)
+	c, err := charge.NewCharge(userID, amount)
+	if err != nil {
+		return nil, err
+	}
+
+	canceledCharge, err := s.chargeCancelRepo.ChargeCancel(ctx, c)
 	if err != nil {
 		return nil, err
 	}

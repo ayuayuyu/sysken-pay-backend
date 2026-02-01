@@ -27,7 +27,12 @@ func NewChargeAmountUseCase(
 func (s *ChargeAmountServiceImpl) ChargeAmount(
 	ctx context.Context, userID uuid.UUID, amount int) (*charge.Charge, error) {
 
-	chargedAmount, err := s.chargeAmountRepo.ChargeAmount(ctx, userID, amount)
+	c, err := charge.NewCharge(userID, amount)
+	if err != nil {
+		return nil, err
+	}
+
+	chargedAmount, err := s.chargeAmountRepo.ChargeAmount(ctx, c)
 	if err != nil {
 		return nil, err
 	}
