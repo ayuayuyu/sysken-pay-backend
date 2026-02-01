@@ -31,7 +31,19 @@ func NewUpdateUserUseCase(
 func (s *UpdateUserServiceImpl) UpdateUser(
 	ctx context.Context, userId uuid.UUID, userName string) (*user.User, error) {
 
-	updatedUser, err := s.userUpdateRepo.UpdateUser(ctx, userId, userName)
+	// ドメインオブジェクトの生成
+	u, err := user.UpdateUser(userName)
+	if err != nil {
+		log.Printf("Failed to create user object: %v", err)
+		return nil, err
+	}
+	// IDをセット（UpdateUserファクトリでは設定されないため）
+	if err := u.SetUserID(userId); err != nil {
+		log.Printf("Failed to set user id: %v", err)
+		return nil, err
+	}
+
+	updatedUser, err := s.userUpdateRepo.UpdateUser(ctx, u)
 	if err != nil {
 		log.Printf("Failed to insert user: %v", err)
 		return nil, err

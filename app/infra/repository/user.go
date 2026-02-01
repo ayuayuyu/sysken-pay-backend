@@ -7,8 +7,6 @@ import (
 	"sysken-pay-api/app/domain/object/user"
 	"sysken-pay-api/app/domain/repository"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 //TODO userデータベースに値を入れる
@@ -59,23 +57,14 @@ func (r *UserRepositoryImpl) InsertUser(
 }
 
 func (r *UserRepositoryImpl) UpdateUser(
-	ctx context.Context, userID uuid.UUID, userName string) (*user.User, error) {
-
-	u, err := user.UpdateUser(userName)
-
-	if err != nil {
-		log.Printf("Failed to create user domain object: %v", err)
-		return nil, err
-	}
-
-	u.SetUserID(userID)
+	ctx context.Context, u *user.User) (*user.User, error) {
 
 	executor := getExecutor(ctx, r.db)
 
 	query := `
 	UPDATE ` + "`user`" + ` SET name = ? WHERE id = ? AND deleted_at IS NULL
 	`
-	_, err = executor.ExecContext(ctx, query,
+	_, err := executor.ExecContext(ctx, query,
 		u.UserName(),
 		u.ID(),
 	)
