@@ -1,0 +1,16 @@
+###
+# APIテスト
+
+GET https://jsonplaceholder.typicode.com/todos/1
+Accept: application/json
+
+###
+
+POST https://jsonplaceholder.typicode.com/posts
+Content-Type: application/json
+
+{
+  "title": "foo",
+  "body": "bar",
+  "userId": 1
+}
