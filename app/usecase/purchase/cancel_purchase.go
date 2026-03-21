@@ -7,7 +7,7 @@ import (
 )
 
 type CancelPurchaseUseCase interface {
-	CancelPurchase(ctx context.Context, userID string, items []purchase.PurchaseItem) (*purchase.Purchase, error)
+	CancelPurchase(ctx context.Context, userID string, inputs []PurchaseItemInput) (*purchase.Purchase, error)
 }
 
 type CancelPurchaseServiceImpl struct {
@@ -23,7 +23,16 @@ func NewCancelPurchaseUseCase(
 }
 
 func (s *CancelPurchaseServiceImpl) CancelPurchase(
-	ctx context.Context, userID string, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
+	ctx context.Context, userID string, inputs []PurchaseItemInput) (*purchase.Purchase, error) {
+
+	items := make([]purchase.PurchaseItem, len(inputs))
+	for i, input := range inputs {
+		pi, err := purchase.NewPurchaseItem(input.ItemID, input.Quantity)
+		if err != nil {
+			return nil, err
+		}
+		items[i] = pi
+	}
 
 	p, err := purchase.DeletePurchase(userID, items)
 	if err != nil {

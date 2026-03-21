@@ -64,7 +64,7 @@ func Run(db *sql.DB) error {
 	getAllItemsUseCase := item.NewGetAllItemsUseCase(itemRepo)
 	chargeAmountUseCase := charge.NewChargeAmountUseCase(chargeRepo)
 	chargeCancelUseCase := charge.NewChargeCancelUseCase(chargeRepo)
-	createPurchaseUseCase := purchase.NewCreatePurchaseUseCase(purchaseRepo, txManager)
+	createPurchaseUseCase := purchase.NewCreatePurchaseUseCase(purchaseRepo, itemRepo, balanceRepo, txManager)
 	cancelPurchaseUseCase := purchase.NewCancelPurchaseUseCase(purchaseRepo)
 	getBalanceUseCase := balance.NewGetBalanceUseCase(balanceRepo)
 	getPurchaseHistoriesUseCase := balance.NewGetPurchaseHistoriesUseCase(balanceRepo)

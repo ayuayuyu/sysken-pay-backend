@@ -18,6 +18,10 @@ type ItemRepository interface {
 	// 更新に成功した場合は更新した商品を返す
 	UpdateItem(ctx context.Context, item *item.Item) (*item.Item, error)
 
+	// 商品をIDで取得する
+	// 取得に成功した場合は取得した商品を返す
+	GetItemByID(ctx context.Context, id int) (*item.Item, error)
+
 	// 商品をJANコードで取得する
 	// 取得に成功した場合は取得した商品を返す
 	GetItemByJanCode(ctx context.Context, janCode string) (*item.Item, error)

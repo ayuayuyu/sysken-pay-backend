@@ -108,6 +108,43 @@ func (r *ItemRepositoryImpl) UpdateItem(ctx context.Context, i *item.Item) (*ite
 	return i, nil
 }
 
+// GetItemByID は商品IDで商品を取得する
+func (r *ItemRepositoryImpl) GetItemByID(ctx context.Context, id int) (*item.Item, error) {
+	executor := getExecutor(ctx, r.db)
+
+	query := `
+	SELECT id, jan_code, name, price, created_at, updated_at, deleted_at
+	FROM item
+	WHERE id = ? AND deleted_at IS NULL
+	`
+
+	row := executor.QueryRowContext(ctx, query, id)
+
+	var (
+		idDB      int
+		janCodeDB string
+		nameDB    string
+		priceDB   int
+		createdAt time.Time
+		updatedAt time.Time
+		deletedAt sql.NullTime
+	)
+
+	if err := row.Scan(&idDB, &janCodeDB, &nameDB, &priceDB, &createdAt, &updatedAt, &deletedAt); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var deleted time.Time
+	if deletedAt.Valid {
+		deleted = deletedAt.Time
+	}
+
+	return item.NewItemFromDB(idDB, janCodeDB, nameDB, priceDB, createdAt, updatedAt, deleted)
+}
+
 // TODO GetItemByJanCodeメソッドの実装
 func (r *ItemRepositoryImpl) GetItemByJanCode(ctx context.Context, janCode string) (*item.Item, error) {
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	domainPurchase "sysken-pay-api/app/domain/object/purchase"
 	apierrors "sysken-pay-api/app/ui/api/pkg/errors"
 	"sysken-pay-api/app/usecase/purchase"
 
@@ -45,34 +44,23 @@ func (h *purchaseHandlerImpl) CreatePurchase(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ctx := r.Context()
-
-	// Itemsの変換
-	var purchaseItems []domainPurchase.PurchaseItem
-	for _, item := range req.Items {
-		pi, err := domainPurchase.NewPurchaseItem(item.ItemId, item.Quantity)
-		if err != nil {
-			log.Printf("Failed to create purchase item: %v", err)
-			apierrors.RespondError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		purchaseItems = append(purchaseItems, pi)
+	inputs := make([]purchase.PurchaseItemInput, len(req.Items))
+	for i, item := range req.Items {
+		inputs[i] = purchase.PurchaseItemInput{ItemID: item.ItemId, Quantity: item.Quantity}
 	}
 
-	//ユースケースの呼び出し
-	createdPurchase, err := h.createPurchaseUseCase.CreatePurchase(ctx, userID, purchaseItems)
+	ctx := r.Context()
+	createdPurchase, err := h.createPurchaseUseCase.CreatePurchase(ctx, userID, inputs)
 	if err != nil {
 		log.Printf("Failed to create purchase: %v", err)
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	//レスポンスの作成
 	res := toPostPurchaseResponse(createdPurchase)
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())
-		return
 	}
 }
 
@@ -83,6 +71,7 @@ func (h *purchaseHandlerImpl) CancelPurchase(w http.ResponseWriter, r *http.Requ
 		apierrors.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
 	userID := chi.URLParam(r, "user_id")
 	if userID == "" {
 		log.Printf("user_id is missing in URL")
@@ -90,33 +79,22 @@ func (h *purchaseHandlerImpl) CancelPurchase(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ctx := r.Context()
-
-	// Itemsの変換
-	var purchaseItems []domainPurchase.PurchaseItem
-	for _, item := range req.Items {
-		pi, err := domainPurchase.NewPurchaseItem(item.ItemId, item.Quantity)
-		if err != nil {
-			log.Printf("Failed to create purchase item: %v", err)
-			apierrors.RespondError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		purchaseItems = append(purchaseItems, pi)
+	inputs := make([]purchase.PurchaseItemInput, len(req.Items))
+	for i, item := range req.Items {
+		inputs[i] = purchase.PurchaseItemInput{ItemID: item.ItemId, Quantity: item.Quantity}
 	}
 
-	//ユースケースの呼び出し
-	canceledPurchase, err := h.cancelPurchaseUseCase.CancelPurchase(ctx, userID, purchaseItems)
+	ctx := r.Context()
+	canceledPurchase, err := h.cancelPurchaseUseCase.CancelPurchase(ctx, userID, inputs)
 	if err != nil {
 		log.Printf("Failed to cancel purchase: %v", err)
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	//レスポンスの作成
 	res := toPostPurchaseResponse(canceledPurchase)
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())
-		return
 	}
 }
