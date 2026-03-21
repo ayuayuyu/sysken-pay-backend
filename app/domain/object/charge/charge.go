@@ -33,9 +33,16 @@ func (c *Charge) SetUserID(userID string) error {
 	return nil
 }
 
+// allowedAmounts はチャージ可能な固定金額の一覧
+var allowedAmounts = map[int]struct{}{
+	500:  {},
+	1000: {},
+	2000: {},
+}
+
 func (c *Charge) SetAmount(amount int) error {
-	if amount <= 0 {
-		return errors.New("amount must be positive")
+	if _, ok := allowedAmounts[amount]; !ok {
+		return errors.New("amount must be one of 500, 1000, 2000")
 	}
 	c.amount = amount
 	return nil
