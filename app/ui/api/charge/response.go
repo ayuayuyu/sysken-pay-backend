@@ -2,17 +2,15 @@ package charge
 
 import (
 	"sysken-pay-api/app/domain/object/charge"
-
-	"github.com/google/uuid"
 )
 
 type ChargeResponse struct {
-	Status    string    `json:"status"`
-	ChargeID  int       `json:"charge_id"`
-	Amount    int       `json:"charge_amount"`
-	UserID    uuid.UUID `json:"user_id"`
-	Balance   int       `json:"balance"`
-	CreatedAt string    `json:"created_at"`
+	Status    string `json:"status"`
+	ChargeID  int    `json:"charge_id"`
+	Amount    int    `json:"charge_amount"`
+	UserID    string `json:"user_id"`
+	Balance   int    `json:"balance"`
+	CreatedAt string `json:"created_at"`
 }
 
 func toPostChargeResponse(charge *charge.Charge) *ChargeResponse {
@@ -27,12 +25,12 @@ func toPostChargeResponse(charge *charge.Charge) *ChargeResponse {
 }
 
 type ChargeCancelResponse struct {
-	Status    string    `json:"status"`
-	ChargeID  int       `json:"charge_id"`
-	Amount    int       `json:"canceled_amount"`
-	UserID    uuid.UUID `json:"user_id"`
-	Balance   int       `json:"balance"`
-	CreatedAt string    `json:"created_at"`
+	Status    string `json:"status"`
+	ChargeID  int    `json:"charge_id"`
+	Amount    int    `json:"canceled_amount"`
+	UserID    string `json:"user_id"`
+	Balance   int    `json:"balance"`
+	CreatedAt string `json:"created_at"`
 }
 
 func toPostChargeCancelResponse(charge *charge.Charge) *ChargeCancelResponse {

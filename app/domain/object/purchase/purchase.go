@@ -3,13 +3,11 @@ package purchase
 import (
 	"errors"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Purchase struct {
 	id        int
-	userID    uuid.UUID
+	userID    string
 	balance   int
 	items     []PurchaseItem
 	createdAt time.Time
@@ -47,9 +45,9 @@ func (p *Purchase) SetID(id int) error {
 	return nil
 }
 
-func (p *Purchase) SetUserID(userID uuid.UUID) error {
-	if userID == uuid.Nil {
-		return errors.New("userID must not be nil")
+func (p *Purchase) SetUserID(userID string) error {
+	if userID == "" {
+		return errors.New("userID must not be empty")
 	}
 	p.userID = userID
 	return nil
@@ -131,7 +129,7 @@ func (p *Purchase) ID() int {
 	return p.id
 }
 
-func (p *Purchase) UserID() uuid.UUID {
+func (p *Purchase) UserID() string {
 	return p.userID
 }
 

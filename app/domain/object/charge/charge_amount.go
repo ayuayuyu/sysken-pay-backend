@@ -1,10 +1,6 @@
 package charge
 
-import (
-	"github.com/google/uuid"
-)
-
-func NewCharge(userID uuid.UUID, amount int) (*Charge, error) {
+func NewCharge(userID string, amount int) (*Charge, error) {
 	c := &Charge{}
 
 	if err := c.SetUserID(userID); err != nil {

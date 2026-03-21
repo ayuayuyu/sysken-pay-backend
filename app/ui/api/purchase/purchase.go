@@ -9,7 +9,6 @@ import (
 	"sysken-pay-api/app/usecase/purchase"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 )
 
 type Handler interface {
@@ -46,13 +45,6 @@ func (h *purchaseHandlerImpl) CreatePurchase(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	parseUUID, err := uuid.Parse(userID)
-	if err != nil {
-		log.Printf("Failed to parse user_id: %v", err)
-		apierrors.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
 	ctx := r.Context()
 
 	// Itemsの変換
@@ -68,7 +60,7 @@ func (h *purchaseHandlerImpl) CreatePurchase(w http.ResponseWriter, r *http.Requ
 	}
 
 	//ユースケースの呼び出し
-	createdPurchase, err := h.createPurchaseUseCase.CreatePurchase(ctx, parseUUID, purchaseItems)
+	createdPurchase, err := h.createPurchaseUseCase.CreatePurchase(ctx, userID, purchaseItems)
 	if err != nil {
 		log.Printf("Failed to create purchase: %v", err)
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())
@@ -98,13 +90,6 @@ func (h *purchaseHandlerImpl) CancelPurchase(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	parseUUID, err := uuid.Parse(userID)
-	if err != nil {
-		log.Printf("Failed to parse user_id: %v", err)
-		apierrors.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
 	ctx := r.Context()
 
 	// Itemsの変換
@@ -120,7 +105,7 @@ func (h *purchaseHandlerImpl) CancelPurchase(w http.ResponseWriter, r *http.Requ
 	}
 
 	//ユースケースの呼び出し
-	canceledPurchase, err := h.cancelPurchaseUseCase.CancelPurchase(ctx, parseUUID, purchaseItems)
+	canceledPurchase, err := h.cancelPurchaseUseCase.CancelPurchase(ctx, userID, purchaseItems)
 	if err != nil {
 		log.Printf("Failed to cancel purchase: %v", err)
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())

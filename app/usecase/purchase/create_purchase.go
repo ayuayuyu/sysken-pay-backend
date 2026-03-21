@@ -4,12 +4,10 @@ import (
 	"context"
 	"sysken-pay-api/app/domain/object/purchase"
 	"sysken-pay-api/app/domain/repository"
-
-	"github.com/google/uuid"
 )
 
 type CreatePurchaseUseCase interface {
-	CreatePurchase(ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error)
+	CreatePurchase(ctx context.Context, userID string, items []purchase.PurchaseItem) (*purchase.Purchase, error)
 }
 
 type CreatePurchaseServiceImpl struct {
@@ -28,7 +26,7 @@ func NewCreatePurchaseUseCase(
 }
 
 func (s *CreatePurchaseServiceImpl) CreatePurchase(
-	ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
+	ctx context.Context, userID string, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
 
 	p, err := purchase.NewPurchase(userID, items)
 	if err != nil {

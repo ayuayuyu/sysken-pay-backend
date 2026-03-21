@@ -8,7 +8,7 @@ USE sysken_pay;
 -- 1. user テーブル (ユーザー)
 -- ---------------------------------
 CREATE TABLE `user` (
-    id CHAR(36) NOT NULL ,
+    id VARCHAR(20) NOT NULL,
     name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -37,7 +37,7 @@ CREATE TABLE item (
 -- ---------------------------------
 CREATE TABLE charge (
     id INT NOT NULL AUTO_INCREMENT,
-    user_id CHAR(36) NOT NULL,
+    user_id VARCHAR(20) NOT NULL,
     amount INT NOT NULL CHECK (amount > 0),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE charge (
 -- ---------------------------------
 CREATE TABLE purchase (
     id INT NOT NULL AUTO_INCREMENT,
-    user_id CHAR(36) NOT NULL,
+    user_id VARCHAR(20) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
     PRIMARY KEY (id),
@@ -78,7 +78,7 @@ CREATE TABLE purchase_item (
 -- これにより、chargeとpurchaseの両方と紐づく中間テーブルのような役割も果たします。
 CREATE TABLE balance (
     id INT NOT NULL AUTO_INCREMENT,
-    user_id CHAR(36) NOT NULL,
+    user_id VARCHAR(20) NOT NULL,
     charge_id INT DEFAULT NULL,   -- チャージ由来の場合にIDが入る
     purchase_id INT DEFAULT NULL, -- 購入由来の場合にIDが入る
     amount INT NOT NULL,          -- 変動額（入金はプラス、出金はマイナス）

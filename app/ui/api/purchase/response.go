@@ -2,14 +2,12 @@ package purchase
 
 import (
 	"sysken-pay-api/app/domain/object/purchase"
-
-	"github.com/google/uuid"
 )
 
 type PostPurchaseResponse struct {
-	Status string    `json:"status"`
-	Id     int       `json:"id"`
-	UserId uuid.UUID `json:"user_id"`
+	Status string `json:"status"`
+	Id     int    `json:"id"`
+	UserId string `json:"user_id"`
 	Items  []struct {
 		ItemId   int `json:"item_id"`
 		Quantity int `json:"quantity"`
@@ -38,9 +36,9 @@ func toPostPurchaseResponse(p *purchase.Purchase) *PostPurchaseResponse {
 }
 
 type PostPurchaseCancelResponse struct {
-	Status string    `json:"status"`
-	Id     int       `json:"id"`
-	UserId uuid.UUID `json:"user_id"`
+	Status string `json:"status"`
+	Id     int    `json:"id"`
+	UserId string `json:"user_id"`
 	Items  []struct {
 		ItemId   int `json:"item_id"`
 		Quantity int `json:"quantity"`

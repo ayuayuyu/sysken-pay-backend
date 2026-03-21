@@ -1,8 +1,6 @@
 package charge
 
-import "github.com/google/uuid"
-
-func DeleteCharge(userId uuid.UUID, amount int) (*Charge, error) {
+func DeleteCharge(userId string, amount int) (*Charge, error) {
 	c := &Charge{}
 
 	if err := c.SetUserID(userId); err != nil {

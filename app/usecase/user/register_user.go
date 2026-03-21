@@ -5,15 +5,13 @@ import (
 	"log"
 	"sysken-pay-api/app/domain/object/user"
 	"sysken-pay-api/app/domain/repository"
-
-	"github.com/google/uuid"
 )
 
 // TODO ドメイン層のインターフェースに接続をして処理を完成させる
 // ユースケースとして、APIから受け取ったデータをドメイン層に渡す役割を果たす
 
 type RegisterUserUseCase interface {
-	RegisterUser(ctx context.Context, userName string) (*user.User, error)
+	RegisterUser(ctx context.Context, userID string, userName string) (*user.User, error)
 }
 
 type RegisterUserServiceImpl struct {
@@ -29,10 +27,10 @@ func NewRegisterUserUseCase(
 }
 
 func (s *RegisterUserServiceImpl) RegisterUser(
-	ctx context.Context, userName string) (*user.User, error) {
+	ctx context.Context, userID string, userName string) (*user.User, error) {
 
 	// ドメインオブジェクトの生成
-	u, err := user.NewUser(uuid.New(), userName)
+	u, err := user.NewUser(userID, userName)
 	if err != nil {
 		log.Printf("Failed to create user object: %v", err)
 		return nil, err

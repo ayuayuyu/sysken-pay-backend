@@ -4,12 +4,10 @@ import (
 	"context"
 	"sysken-pay-api/app/domain/object/purchase"
 	"sysken-pay-api/app/domain/repository"
-
-	"github.com/google/uuid"
 )
 
 type CancelPurchaseUseCase interface {
-	CancelPurchase(ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error)
+	CancelPurchase(ctx context.Context, userID string, items []purchase.PurchaseItem) (*purchase.Purchase, error)
 }
 
 type CancelPurchaseServiceImpl struct {
@@ -25,7 +23,7 @@ func NewCancelPurchaseUseCase(
 }
 
 func (s *CancelPurchaseServiceImpl) CancelPurchase(
-	ctx context.Context, userID uuid.UUID, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
+	ctx context.Context, userID string, items []purchase.PurchaseItem) (*purchase.Purchase, error) {
 
 	p, err := purchase.DeletePurchase(userID, items)
 	if err != nil {

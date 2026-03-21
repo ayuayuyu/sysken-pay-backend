@@ -4,8 +4,6 @@ import (
 	"errors"
 	"time"
 	"unicode/utf8"
-
-	"github.com/google/uuid"
 )
 
 //TODO モデル（データベースに入れる型を宣言する）
@@ -13,17 +11,21 @@ import (
 //ユーザーID、名前、作成日時、更新日時など
 
 type User struct {
-	userID    uuid.UUID
+	userID    string
 	userName  string
 	createdAt time.Time
 	updatedAt time.Time
 	deletedAt time.Time
 }
 
-func (p *User) SetUserID(userID uuid.UUID) error {
+func (p *User) SetUserID(userID string) error {
 	// userIDは空でないこと
-	if userID == uuid.Nil {
+	if userID == "" {
 		return errors.New("userID must not be empty")
+	}
+	// userIDは20文字以下であること
+	if utf8.RuneCountInString(userID) > 20 {
+		return errors.New("userID must be 20 characters or less")
 	}
 
 	p.userID = userID
@@ -102,7 +104,7 @@ func (u *User) SetDeletedAt(deletedAt time.Time) error {
 	return nil
 }
 
-func (p *User) ID() uuid.UUID {
+func (p *User) ID() string {
 	return p.userID
 }
 

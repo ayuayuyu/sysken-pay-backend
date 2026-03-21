@@ -3,8 +3,6 @@ package charge
 import (
 	"errors"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 //TODO モデル（データベースに入れる型を宣言する）
@@ -12,7 +10,7 @@ import (
 
 type Charge struct {
 	id        int
-	userID    uuid.UUID
+	userID    string
 	amount    int
 	balance   int
 	createdAt time.Time
@@ -27,9 +25,9 @@ func (c *Charge) SetID(id int) error {
 	return nil
 }
 
-func (c *Charge) SetUserID(userID uuid.UUID) error {
-	if userID == uuid.Nil {
-		return errors.New("userID must not be nil")
+func (c *Charge) SetUserID(userID string) error {
+	if userID == "" {
+		return errors.New("userID must not be empty")
 	}
 	c.userID = userID
 	return nil
@@ -89,7 +87,7 @@ func (c *Charge) ID() int {
 	return c.id
 }
 
-func (c *Charge) UserID() uuid.UUID {
+func (c *Charge) UserID() string {
 	return c.userID
 }
 

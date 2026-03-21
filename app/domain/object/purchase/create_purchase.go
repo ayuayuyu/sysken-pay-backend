@@ -1,10 +1,6 @@
 package purchase
 
-import (
-	"github.com/google/uuid"
-)
-
-func NewPurchase(userID uuid.UUID, items []PurchaseItem) (*Purchase, error) {
+func NewPurchase(userID string, items []PurchaseItem) (*Purchase, error) {
 	p := &Purchase{}
 
 	if err := p.SetUserID(userID); err != nil {

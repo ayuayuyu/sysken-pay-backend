@@ -8,7 +8,6 @@ import (
 	"sysken-pay-api/app/usecase/charge"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 )
 
 //TODO APIリクエストからデータを整形してユースケースに渡すための構造体を作成する
@@ -48,15 +47,9 @@ func (h *chargeHandlerImpl) ChargeAmount(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	parseUUID, err := uuid.Parse(userID)
-	if err != nil {
-		log.Printf("Failed to parse user_id: %v", err)
-		apierrors.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
 	ctx := r.Context()
 	//ユースケースの呼び出し
-	chargedAmount, err := h.chargeAmountUseCase.ChargeAmount(ctx, parseUUID, req.Amount)
+	chargedAmount, err := h.chargeAmountUseCase.ChargeAmount(ctx, userID, req.Amount)
 	if err != nil {
 		log.Printf("Failed to charge amount: %v", err)
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())
@@ -91,15 +84,9 @@ func (h *chargeHandlerImpl) ChargeCancel(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	parseUUID, err := uuid.Parse(userID)
-	if err != nil {
-		log.Printf("Failed to parse user_id: %v", err)
-		apierrors.RespondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
 	ctx := r.Context()
 	//ユースケースの呼び出し
-	canceledCharge, err := h.chargeCancelUseCase.ChargeCancel(ctx, parseUUID, req.Amount)
+	canceledCharge, err := h.chargeCancelUseCase.ChargeCancel(ctx, userID, req.Amount)
 	if err != nil {
 		log.Printf("Failed to cancel charge: %v", err)
 		apierrors.RespondError(w, http.StatusInternalServerError, err.Error())
