@@ -11,7 +11,7 @@ type GetPurchaseHistoriesUseCase interface {
 	GetPurchaseHistories(ctx context.Context, userID string, page, perPage int) (
 		[]*domainbalance.PurchaseHistory,
 		int,
-		*domainbalance.HistoryPage,
+		*HistoryPage,
 		error,
 	)
 }
@@ -26,7 +26,7 @@ func NewGetPurchaseHistoriesUseCase(balanceRepo repository.BalanceRepository) *G
 
 func (s *GetPurchaseHistoriesServiceImpl) GetPurchaseHistories(
 	ctx context.Context, userID string, page, perPage int,
-) (histories []*domainbalance.PurchaseHistory, totalAmount int, pageInfo *domainbalance.HistoryPage, err error) {
+) (histories []*domainbalance.PurchaseHistory, totalAmount int, pageInfo *HistoryPage, err error) {
 	if page < 1 {
 		return nil, 0, nil, errors.New("page must be >= 1")
 	}
@@ -34,7 +34,10 @@ func (s *GetPurchaseHistoriesServiceImpl) GetPurchaseHistories(
 		return nil, 0, nil, errors.New("per_page must be >= 1")
 	}
 
-	histories, totalCount, totalAmount, err := s.balanceRepo.GetPurchaseHistories(ctx, userID, page, perPage)
+	limit := perPage
+	offset := (page - 1) * perPage
+
+	histories, totalCount, totalAmount, err := s.balanceRepo.GetPurchaseHistories(ctx, userID, limit, offset)
 	if err != nil {
 		return nil, 0, nil, err
 	}
@@ -55,7 +58,7 @@ func (s *GetPurchaseHistoriesServiceImpl) GetPurchaseHistories(
 		nextPage = &p
 	}
 
-	pageInfo, err = domainbalance.NewHistoryPage(prevPage, nextPage, totalPage)
+	pageInfo, err = NewHistoryPage(prevPage, nextPage, totalPage)
 	if err != nil {
 		return nil, 0, nil, err
 	}

@@ -2,7 +2,7 @@ package balance
 
 import "errors"
 
-// HistoryPage はページネーション情報を保持するドメインオブジェクト
+// HistoryPage はページネーション情報を保持する
 type HistoryPage struct {
 	prevPage  *int
 	nextPage  *int

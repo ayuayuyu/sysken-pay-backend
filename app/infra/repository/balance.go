@@ -31,8 +31,8 @@ func (r *BalanceRepositoryImpl) GetBalance(ctx context.Context, userID string) (
 	return domainbalance.NewBalance(userID, currentBalance)
 }
 
-// GetPurchaseHistories はユーザーの購入履歴をページネーションで取得する
-func (r *BalanceRepositoryImpl) GetPurchaseHistories(ctx context.Context, userID string, page, perPage int) (
+// GetPurchaseHistories はユーザーの購入履歴を取得する
+func (r *BalanceRepositoryImpl) GetPurchaseHistories(ctx context.Context, userID string, limit, offset int) (
 	histories []*domainbalance.PurchaseHistory, totalCount int, totalAmount int, err error,
 ) {
 	executor := getExecutor(ctx, r.db)
@@ -48,8 +48,7 @@ func (r *BalanceRepositoryImpl) GetPurchaseHistories(ctx context.Context, userID
 		return nil, 0, 0, err
 	}
 
-	// ページネーション済み履歴を取得
-	offset := (page - 1) * perPage
+	// 履歴を取得
 	queryRows := `
 		SELECT i.name, pi.quantity, pi.price_at_purchase, p.created_at
 		FROM purchase p
@@ -59,7 +58,7 @@ func (r *BalanceRepositoryImpl) GetPurchaseHistories(ctx context.Context, userID
 		ORDER BY p.created_at DESC
 		LIMIT ? OFFSET ?
 	`
-	rows, err := executor.QueryContext(ctx, queryRows, userID, perPage, offset)
+	rows, err := executor.QueryContext(ctx, queryRows, userID, limit, offset)
 	if err != nil {
 		return nil, 0, 0, err
 	}

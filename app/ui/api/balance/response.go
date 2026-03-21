@@ -2,6 +2,7 @@ package balance
 
 import (
 	domainbalance "sysken-pay-api/app/domain/object/balance"
+	"sysken-pay-api/app/usecase/balance"
 )
 
 type GetBalanceResponse struct {
@@ -41,7 +42,7 @@ type GetPurchaseHistoriesResponse struct {
 func toGetPurchaseHistoriesResponse(
 	histories []*domainbalance.PurchaseHistory,
 	totalAmount int,
-	page *domainbalance.HistoryPage,
+	page *balance.HistoryPage,
 ) *GetPurchaseHistoriesResponse {
 	items := make([]HistoryItem, len(histories))
 	for i, h := range histories {
