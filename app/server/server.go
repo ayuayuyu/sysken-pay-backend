@@ -13,11 +13,13 @@ import (
 	"sysken-pay-api/app/config"
 	"sysken-pay-api/app/infra/repository"
 	"sysken-pay-api/app/infra/transaction"
+	api_balance "sysken-pay-api/app/ui/api/balance"
 	api_charge "sysken-pay-api/app/ui/api/charge"
 	"sysken-pay-api/app/ui/api/health"
 	api_item "sysken-pay-api/app/ui/api/item"
 	api_purchase "sysken-pay-api/app/ui/api/purchase"
 	api_user "sysken-pay-api/app/ui/api/user"
+	"sysken-pay-api/app/usecase/balance"
 	"sysken-pay-api/app/usecase/charge"
 	"sysken-pay-api/app/usecase/item"
 	"sysken-pay-api/app/usecase/purchase"
@@ -51,6 +53,7 @@ func Run(db *sql.DB) error {
 	itemRepo := repository.NewItemRepository(db)
 	chargeRepo := repository.NewChargeRepository(db)
 	purchaseRepo := repository.NewPurchaseRepository(db)
+	balanceRepo := repository.NewBalanceRepository(db)
 
 	// UseCase
 	registerUserUseCase := user.NewRegisterUserUseCase(userRepo)
@@ -63,12 +66,15 @@ func Run(db *sql.DB) error {
 	chargeCancelUseCase := charge.NewChargeCancelUseCase(chargeRepo)
 	createPurchaseUseCase := purchase.NewCreatePurchaseUseCase(purchaseRepo, txManager)
 	cancelPurchaseUseCase := purchase.NewCancelPurchaseUseCase(purchaseRepo)
+	getBalanceUseCase := balance.NewGetBalanceUseCase(balanceRepo)
+	getPurchaseHistoriesUseCase := balance.NewGetPurchaseHistoriesUseCase(balanceRepo)
 
 	// Handler
 	userHandler := api_user.NewUserHandler(registerUserUseCase, updateUserUseCase)
 	itemHandler := api_item.NewItemHandler(registerItemUseCase, updateItemUseCase, findItemByJanCodeUseCase, getAllItemsUseCase)
 	chargeHandler := api_charge.NewChargeHandler(chargeAmountUseCase, chargeCancelUseCase)
 	purchaseHandler := api_purchase.NewPurchaseHandler(createPurchaseUseCase, cancelPurchaseUseCase)
+	balanceHandler := api_balance.NewBalanceHandler(getBalanceUseCase, getPurchaseHistoriesUseCase)
 	// ルーターの設定
 	r := chi.NewRouter()
 
@@ -93,6 +99,8 @@ func Run(db *sql.DB) error {
 			r.Post("/{user_id}/charge/cancel", chargeHandler.ChargeCancel)
 			r.Post("/{user_id}/purchase", purchaseHandler.CreatePurchase)
 			r.Post("/{user_id}/purchase/cancel", purchaseHandler.CancelPurchase)
+			r.Get("/{user_id}/balance", balanceHandler.GetBalance)
+			r.Get("/{user_id}/history", balanceHandler.GetPurchaseHistories)
 		})
 
 		// 商品関連
